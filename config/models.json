@@ -1,0 +1,29 @@
+{
+  "providers": {
+    "omlx": {
+      "baseUrl": "http://127.0.0.1:7999/v1",
+      "api": "openai-completions",
+      "apiKey": "shseooo",
+      "authHeader": true,
+      "models": [
+        {
+          "id": "Qwen3.6-27B-8bit",
+          "name": "Qwen3.6-27B-8bit",
+          "reasoning": false,
+          "input": [
+            "text",
+            "image"
+          ],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 80000,
+          "maxTokens": 30000
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "exaApiKey": "__EXA_API_KEY__",
+  "provider": "exa",
+  "workflow": "none",
+  "allowBrowserCookies": false
+}
