@@ -21,7 +21,40 @@
             "cacheWrite": 0
           },
           "contextWindow": 80000,
-          "maxTokens": 30000
+          "maxTokens": 12000
+        },
+        {
+          "id": "Qwen3.6-35B-A3B-MLX-8bit",
+          "name": "Qwen3.6-35B-A3B-MLX-8bit",
+          "reasoning": false,
+          "input": [
+            "text"
+          ],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 80000,
+          "maxTokens": 12000
+        },
+        {
+          "id": "Qwen3.6-27B-oQ4e-mtp",
+          "name": "Qwen3.6-27B-oQ4e-mtp",
+          "reasoning": false,
+          "input": [
+            "text",
+            "image"
+          ],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 150000,
+          "maxTokens": 24000
         }
       ]
     }

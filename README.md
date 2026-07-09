@@ -19,11 +19,14 @@ cp .env.example .env
 
 | 항목 | 내용 | 위치 |
 |------|------|------|
-| **extensions** | `@hypabolic/pi-hypa`, `context-mode`, `pi-mcp-adapter`, `pi-web-access` | `~/.pi/agent/npm` (npm install) |
+| **extensions (npm)** | `@hypabolic/pi-hypa`, `@sting8k/pi-vcc`, `context-mode`, `pi-mcp-adapter`, `pi-web-access` | `~/.pi/agent/npm` (npm install) |
+| **extensions (local)** | `ctx-autocompact.ts` — 컨텍스트 사용량 감시 + git commit 경계 자동 압축/재개 | `~/.pi/agent/extensions/` |
 | **mcp** | `context7` (API 키 주입) | `~/.pi/agent/mcp.json` |
 | **skills** | `kg`, `plan-interview`, `plan-tasks` | `~/.pi/agent/skills/` |
-| **config** | provider/model(omlx · Qwen3.6-27B-8bit), 패키지 목록, 테마 | `~/.pi/agent/settings.json` |
-| **models** | omlx 프로바이더 (`http://127.0.0.1:7999/v1`) | `~/.pi/agent/models.json` |
+| **config** | provider/model(omlx · Qwen3.6-27B-oQ4e-mtp), 패키지 목록, compaction 설정 | `~/.pi/agent/settings.json` |
+| **models** | omlx 프로바이더 (`http://127.0.0.1:7999/v1`) + llama.cpp (`http://127.0.0.1:1235/v1`) | `~/.pi/agent/models.json` |
+| **compaction** | pi-vcc 알고리즘 압축 설정 | `~/.pi/agent/pi-vcc-config.json` |
+| **autocompact** | ctx-autocompact 임계치/커밋 경계/재개 프롬프트 설정 | `~/.pi/agent/ctx-autocompact-config.json` |
 | **system prompt** | 출력 언어 정책 | `~/.pi/agent/APPEND_SYSTEM.md` |
 | **web search** | exa (API 키 주입) | `~/.pi/web-search.json` |
 | **trust** | 설치 머신의 `$HOME` 로 자동 생성 | `~/.pi/agent/trust.json` |
@@ -37,6 +40,8 @@ cp .env.example .env
   이미 설치돼 있으면 건너뛴다. `SKIP_HYPA=1 ./install.sh` 로 생략 가능.
 - **omlx 모델 서버** — `models.json` 의 기본 프로바이더는 `http://127.0.0.1:7999/v1`
   를 기대한다. MLX 등 로컬 서버는 **이 스크립트가 설치하지 않으므로** 별도로 띄워야 한다.
+- **llama.cpp 서버** — `models.json` 의 `llama.cpp` 프로바이더는 `http://127.0.0.1:1235/v1`
+  을 기대한다 (역시 별도로 띄워야 함).
 
 ## 동작 메모
 

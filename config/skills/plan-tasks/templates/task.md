@@ -18,6 +18,9 @@ est_change_lines: <estimated changed lines — logic ≤120 / mechanical ≤200,
 - **PLAN step**: <step N — where this sits in the overall plan>
 - **Background**: <minimum context needed: domain terms, why this is needed>
 - **From prerequisites**: <what depends_on tasks produced — e.g. "task 1 defined the User struct">
+- **Call site (who invokes this, from where)**: <the entry point / parent that reaches this code — e.g.
+  "registered in `router.go` mountRoutes()", "rendered by `App.tsx`", "called from `main()`". This task must WIRE
+  the code in, not just define it. If wiring is a separate PLAN step, name that step here.>
 
 ## 2. Target files + code excerpts
 **File to modify**: `<path>`
@@ -60,12 +63,15 @@ Do exactly the following, in order:
 ## 4. Acceptance criteria + verification
 **Acceptance criteria**:
 - [ ] The frozen tests in section 2b pass. (Primary gate for test-first tasks.)
+- [ ] **Wired in / reachable**: the code is invoked from the Call site above, and the frozen test exercises it
+      through that real path (an unwired version would fail). Not merely "the function exists."
+- [ ] **No orphan**: dead-code / unused-export check reports no new never-called/never-imported symbol from this task.
 - [ ] <verifiable condition 1>
 - [ ] <verifiable condition 2>
 
-**Verification command** (must pass to be considered done — runs the section 2b tests):
+**Verification command** (must pass to be considered done — runs the section 2b tests + full build/test + dead-code):
 ```bash
-<e.g. go build ./... && go test ./pkg/foo/ -run TestBar>
+<e.g. go build ./... && go test ./... && staticcheck -checks U1000 ./...>
 ```
 
 **Expected output format**: <e.g. full content of the modified file / a unified diff>

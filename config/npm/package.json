@@ -2,9 +2,10 @@
   "name": "pi-extensions",
   "private": true,
   "dependencies": {
-    "@hypabolic/pi-hypa": "^0.1.4",
-    "context-mode": "^1.0.162",
-    "pi-mcp-adapter": "^2.10.0",
-    "pi-web-access": "^0.10.7"
+    "@hypabolic/pi-hypa": "^0.1.8",
+    "@sting8k/pi-vcc": "^0.4.0",
+    "context-mode": "^1.0.169",
+    "pi-mcp-adapter": "^2.11.0",
+    "pi-web-access": "^0.13.0"
   }
 }

@@ -1,13 +1,19 @@
 {
-  "lastChangelogVersion": "0.79.4",
+  "lastChangelogVersion": "0.80.3",
   "theme": "dark",
   "defaultProvider": "omlx",
-  "defaultModel": "Qwen3.6-27B-8bit",
+  "defaultModel": "Qwen3.6-27B-oQ4e-mtp",
   "defaultThinkingLevel": "low",
   "packages": [
     "npm:@hypabolic/pi-hypa",
     "npm:pi-mcp-adapter",
     "npm:context-mode",
-    "npm:pi-web-access"
-  ]
+    "npm:pi-web-access",
+    "npm:@sting8k/pi-vcc"
+  ],
+  "compaction": {
+    "enabled": true,
+    "reserveTokens": 12000,
+    "keepRecentTokens": 20000
+  }
 }

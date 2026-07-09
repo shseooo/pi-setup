@@ -41,7 +41,7 @@ EXA_API_KEY="${EXA_API_KEY:-}"
 
 # --- 1. directories ---------------------------------------------------------
 info "Installing pi config into $PI_DIR"
-mkdir -p "$AGENT_DIR/skills" "$AGENT_DIR/npm"
+mkdir -p "$AGENT_DIR/skills" "$AGENT_DIR/npm" "$AGENT_DIR/extensions"
 
 # back up a file before overwriting it
 backup() {
@@ -78,6 +78,8 @@ render() {
 copy settings.json
 copy models.json
 copy APPEND_SYSTEM.md
+copy pi-vcc-config.json           # pi-vcc: algorithmic compaction (used by ctx-autocompact)
+copy ctx-autocompact-config.json  # ctx-autocompact: threshold/commit-boundary compaction + resume prompt
 
 # --- 3. secret-bearing config ----------------------------------------------
 render mcp.json        CONTEXT7_API_KEY "$CONTEXT7_API_KEY" __CONTEXT7_API_KEY__
@@ -107,6 +109,15 @@ cp "$SRC/npm/package.json" "$AGENT_DIR/npm/package.json"
 ( cd "$AGENT_DIR/npm" && npm install --silent --no-audit --no-fund )
 ok "extensions installed"
 
+# --- 6b. local extensions (TypeScript, auto-loaded from agent/extensions) ---
+info "Installing local extensions"
+if command -v rsync >/dev/null 2>&1; then
+  rsync -a --exclude='.DS_Store' "$SRC/extensions/" "$AGENT_DIR/extensions/"
+else
+  cp -R "$SRC/extensions/." "$AGENT_DIR/extensions/"
+fi
+for e in "$SRC"/extensions/*.ts; do ok "local extension: $(basename "$e")"; done
+
 # --- 7. external tools ------------------------------------------------------
 # Hypa: command-compression runtime that pi uses as a PreToolUse hook.
 # (Separate binary from the @hypabolic/pi-hypa npm extension above.)
@@ -125,6 +136,7 @@ echo
 info "Done. Configured in $PI_DIR:"
 echo "  • provider/model : $(node -e 'const s=require(process.argv[1]);console.log(s.defaultProvider+" / "+s.defaultModel)' "$SRC/settings.json")"
 echo "  • extensions     : $(node -e 'const p=require(process.argv[1]);console.log(Object.keys(p.dependencies||{}).join(", "))' "$SRC/npm/package.json")"
+echo "  • local ext      : $(ls "$SRC/extensions" | grep '\.ts$' | tr '\n' ' ')"
 echo "  • mcp servers    : context7"
 echo "  • skills         : $(ls "$SRC/skills" | tr '\n' ' ')"
 echo "  • external tools : hypa$([[ "${SKIP_HYPA:-}" == "1" ]] && echo " (skipped)")"
