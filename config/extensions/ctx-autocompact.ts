@@ -107,6 +107,11 @@ export default function (pi: ExtensionAPI) {
   // The follow-up prompt to resume with for the in-flight compaction (the tool
   // passes its own; background triggers fall back to config.resumePrompt).
   let pendingResumePrompt: string | null = null;
+  // True when the in-flight compaction came from the compact_and_continue tool.
+  // That path is contractual: the agent ends its turn expecting a re-prompt, so
+  // we must resume even when compaction turns out to be a no-op — unlike
+  // background triggers, where a no-op means the running turn was never cut.
+  let toolInitiated = false;
 
   function loadConfig(): Config {
     try {
@@ -151,15 +156,17 @@ export default function (pi: ExtensionAPI) {
 
   function triggerCompaction(
     ctx: ExtensionContext,
-    opts: { keep?: number; resumePrompt?: string } = {},
+    opts: { keep?: number; resumePrompt?: string; fromTool?: boolean } = {},
   ) {
     if (compacting) return;
     compacting = true;
     // keep:0 compacts the tail too, so any prior tail-bound backoff is moot.
     if (opts.keep === 0) tailBound = false;
+    toolInitiated = !!opts.fromTool;
     // Capture, before compaction can abort it, whether a turn was running.
-    // Only then do we auto-resume afterwards.
-    interruptedWork = config.autoResume && !ctx.isIdle();
+    // Only then do we auto-resume afterwards. Tool-initiated compaction always
+    // resumes: the agent ends its turn by contract and waits for the re-prompt.
+    interruptedWork = opts.fromTool ? config.autoResume : config.autoResume && !ctx.isIdle();
     pendingResumePrompt = opts.resumePrompt ?? config.resumePrompt;
     lastCompactAt = Date.now(); // start cooldown immediately to debounce
     if (config.notify) {
@@ -221,9 +228,16 @@ export default function (pi: ExtensionAPI) {
             benign ? "info" : "error",
           );
         }
-        // Compaction failed → context is unchanged, but if we interrupted a
-        // running turn we must still resume, or the work halts. Never leave the
-        // agent stuck just because there was nothing to compact.
+        if (benign && !toolInitiated) {
+          // "Nothing to compact (session too small)" on a BACKGROUND trigger →
+          // the running turn was never cut into; sending the resume prompt
+          // would spawn a spurious turn. Drop the pending resume state.
+          interruptedWork = false;
+          pendingResumePrompt = null;
+          return;
+        }
+        // Tool-initiated no-op OR real failure → the agent ended (or will end)
+        // its turn expecting a re-prompt; without a resume the work halts.
         maybeResume(ctx);
       },
     });
@@ -236,13 +250,21 @@ export default function (pi: ExtensionAPI) {
    */
   function maybeResume(ctx: ExtensionContext) {
     const prompt = pendingResumePrompt ?? config.resumePrompt;
+    const viaTool = toolInitiated;
     pendingResumePrompt = null;
+    toolInitiated = false;
     if (!interruptedWork) return;
     interruptedWork = false;
-    if (!ctx.isIdle()) return; // compaction didn't actually halt the turn
-    if (ctx.hasPendingMessages()) return; // user/skill already queued a follow-up
+    if (!viaTool) {
+      // Background trigger: only resume if the compaction actually halted the
+      // turn and nothing else is queued.
+      if (!ctx.isIdle()) return; // compaction didn't actually halt the turn
+      if (ctx.hasPendingMessages()) return; // user/skill already queued a follow-up
+    }
+    // Tool path: the turn may still be wrapping up its final tokens here;
+    // deliverAs "followUp" queues the resume until the agent fully finishes.
     if (config.notify) {
-      ctx.ui.notify("ctx-autocompact: 압축 완료 — 작업을 자동으로 이어서 재개합니다.", "info");
+      ctx.ui.notify("ctx-autocompact: 작업을 자동으로 이어서 재개합니다.", "info");
     }
     pi.sendUserMessage(prompt, { deliverAs: "followUp" });
   }
@@ -326,7 +348,7 @@ export default function (pi: ExtensionAPI) {
         typeof params.followUp === "string" && params.followUp.trim()
           ? params.followUp.trim()
           : config.resumePrompt;
-      triggerCompaction(ctx, { keep, resumePrompt: followUp });
+      triggerCompaction(ctx, { keep, resumePrompt: followUp, fromTool: true });
       return {
         content: [
           {

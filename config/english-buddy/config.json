@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "autoCorrect": true,
+  "model": "omlx2/gemma-4-E2B-it-UD-MLX-4bit",
+  "summaryLanguage": "Korean",
+  "domainTerms": [],
+  "timeoutMs": 20000,
+  "maxAnnotations": 3
+}

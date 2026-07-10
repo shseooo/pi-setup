@@ -21,10 +21,12 @@ cp .env.example .env
 |------|------|------|
 | **extensions (npm)** | `@hypabolic/pi-hypa`, `@sting8k/pi-vcc`, `context-mode`, `pi-mcp-adapter`, `pi-web-access` | `~/.pi/agent/npm` (npm install) |
 | **extensions (local)** | `ctx-autocompact.ts` — 컨텍스트 사용량 감시 + git commit 경계 자동 압축/재개 | `~/.pi/agent/extensions/` |
+| **extensions (local)** | `english-buddy/` — 영어 코치: 프롬프트 자동 교정·번역·`::` 리파인, `/eb` 통계·드릴 (자세한 내용은 해당 README) | `~/.pi/agent/extensions/english-buddy/` |
+| **english-buddy 데이터** | 기본 config(코치 모델: omlx2 gemma) + 코딩 프롬프트 영어 단어장. config 는 이미 있으면 보존 | `~/.pi/english-buddy/` |
 | **mcp** | `context7` (API 키 주입) | `~/.pi/agent/mcp.json` |
 | **skills** | `kg`, `plan-interview`, `plan-tasks` | `~/.pi/agent/skills/` |
 | **config** | provider/model(omlx · Qwen3.6-27B-oQ4e-mtp), 패키지 목록, compaction 설정 | `~/.pi/agent/settings.json` |
-| **models** | omlx 프로바이더 (`http://127.0.0.1:7999/v1`) + llama.cpp (`http://127.0.0.1:1235/v1`) | `~/.pi/agent/models.json` |
+| **models** | omlx (`http://127.0.0.1:7999/v1`) + llama.cpp (`http://127.0.0.1:1235/v1`) + omlx2 (tailscale 원격, english-buddy 코치용 gemma) | `~/.pi/agent/models.json` |
 | **compaction** | pi-vcc 알고리즘 압축 설정 | `~/.pi/agent/pi-vcc-config.json` |
 | **autocompact** | ctx-autocompact 임계치/커밋 경계/재개 프롬프트 설정 | `~/.pi/agent/ctx-autocompact-config.json` |
 | **system prompt** | 출력 언어 정책 | `~/.pi/agent/APPEND_SYSTEM.md` |

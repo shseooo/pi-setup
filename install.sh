@@ -116,7 +116,26 @@ if command -v rsync >/dev/null 2>&1; then
 else
   cp -R "$SRC/extensions/." "$AGENT_DIR/extensions/"
 fi
-for e in "$SRC"/extensions/*.ts; do ok "local extension: $(basename "$e")"; done
+for e in "$SRC"/extensions/*.ts "$SRC"/extensions/*/; do
+  [[ -e "$e" ]] && ok "local extension: $(basename "$e")"
+done
+
+# --- 6c. english-buddy data (config defaults + vocabulary) -------------------
+# The extension itself lives in agent/extensions/english-buddy (copied above).
+# Its data dir holds user config + correction history (JSONL); never clobber an
+# existing config — it carries the per-machine coach-model choice.
+info "Provisioning english-buddy data dir"
+EB_DIR="$PI_DIR/english-buddy"
+mkdir -p "$EB_DIR"
+if [[ -e "$EB_DIR/config.json" ]]; then
+  warn "english-buddy/config.json exists — keeping it (delete it and re-run to reset to repo defaults)"
+else
+  cp "$SRC/english-buddy/config.json" "$EB_DIR/config.json"
+  ok "english-buddy/config.json"
+fi
+backup "$EB_DIR/coding-prompt-vocabulary.md"
+cp "$SRC/english-buddy/coding-prompt-vocabulary.md" "$EB_DIR/coding-prompt-vocabulary.md"
+ok "english-buddy/coding-prompt-vocabulary.md"
 
 # --- 7. external tools ------------------------------------------------------
 # Hypa: command-compression runtime that pi uses as a PreToolUse hook.
@@ -136,7 +155,7 @@ echo
 info "Done. Configured in $PI_DIR:"
 echo "  • provider/model : $(node -e 'const s=require(process.argv[1]);console.log(s.defaultProvider+" / "+s.defaultModel)' "$SRC/settings.json")"
 echo "  • extensions     : $(node -e 'const p=require(process.argv[1]);console.log(Object.keys(p.dependencies||{}).join(", "))' "$SRC/npm/package.json")"
-echo "  • local ext      : $(ls "$SRC/extensions" | grep '\.ts$' | tr '\n' ' ')"
+echo "  • local ext      : $(cd "$SRC/extensions" && ls -d *.ts */ 2>/dev/null | sed 's|/$||' | tr '\n' ' ')"
 echo "  • mcp servers    : context7"
 echo "  • skills         : $(ls "$SRC/skills" | tr '\n' ' ')"
 echo "  • external tools : hypa$([[ "${SKIP_HYPA:-}" == "1" ]] && echo " (skipped)")"

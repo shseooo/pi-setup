@@ -1,5 +1,29 @@
 {
   "providers": {
+    "omlx2": {
+      "baseUrl": "http://34seod-macbookpro.tail5c7bd6.ts.net:8080/v1",
+      "api": "openai-completions",
+      "apiKey": "sk-shseooo",
+      "authHeader": true,
+      "models": [
+        {
+          "id": "gemma-4-E2B-it-UD-MLX-4bit",
+          "name": "gemma-4-E2B-it-UD-MLX-4bit",
+          "reasoning": false,
+          "input": [
+            "text"
+          ],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0
+          },
+          "contextWindow": 50000,
+          "maxTokens": 4000
+        }
+      ]
+    },
     "omlx": {
       "baseUrl": "http://127.0.0.1:7999/v1",
       "api": "openai-completions",
